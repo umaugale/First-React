@@ -1,9 +1,8 @@
 import { Stack } from "@mui/material";
 import { Box, styled } from "@mui/system";
 import { Breadcrumb, SimpleCard } from "app/components";
-import AddAirlineForm from "./AddAirlineForm";
-//import EditForm from "./EditForm";
-// import StepperForm from "./StepperForm";
+import AddAirlineForm from "./AddEditAirlineForm";
+
 
 const Container = styled("div")(({ theme }) => ({
   margin: "30px",
@@ -23,11 +22,8 @@ const AddForm = () => {
 
       <Stack spacing={3}>
         <SimpleCard title="Add New Airline">
-          <AddAirlineForm />
+          <AddAirlineForm  />
         </SimpleCard>
-        {/* <SimpleCard title="stepper form">
-          <StepperForm />
-        </SimpleCard>  */}
       </Stack>
     </Container>
   );

@@ -11,8 +11,8 @@ const userList = [
     name: 'Uma Ugale',
     username: 'Uma',
     email: 'uma@iconcile.com',
-    avatar: '/assets/images/',
-    age: 25,
+    avatar: '/assets/images/umaugale.jpeg',
+    age: 23,
   },
 ];
 

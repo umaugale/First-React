@@ -11,11 +11,17 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Modal,
+  Fade,
+  Typography,
+  Backdrop,
 } from '@mui/material';
 
 import { useNavigate } from 'react-router-dom';
 import {
+  CheckBoxRounded,
   CloudDownloadRounded,
+  DeleteRounded,
   FilterListRounded,
   FullscreenRounded,
   PrintRounded,
@@ -25,7 +31,14 @@ import { useState } from 'react';
 import React, { useEffect } from 'react';
 import { TextField } from '@material-ui/core';
 import { SearchOutlined } from '@material-ui/icons';
- 
+import axios from 'axios';
+import fetch from 'cross-fetch';
+import { Breadcrumb, SimpleCard } from 'app/components';
+import SearchAirline from './Edit/SearchAirlineForm';
+
+const StyledIconButton = styled(IconButton)(({ theme }) => ({
+  color: theme.palette.text.primary,
+}));
 const StyledTable = styled(Table)(() => ({
   whiteSpace: 'pre',
   '& thead': {
@@ -35,45 +48,72 @@ const StyledTable = styled(Table)(() => ({
     '& tr': { '& td': { paddingLeft: 0, textTransform: 'capitalize' } },
   },
 }));
-
+const Container = styled('div')(({ theme }) => ({
+  margin: '30px',
+  [theme.breakpoints.down('sm')]: { margin: '16px' },
+  '& .breadcrumb': {
+    marginBottom: '30px',
+    [theme.breakpoints.down('sm')]: { marginBottom: '16px' },
+  },
+}));
 const AirlineTable = () => {
   const [page, setPage] = useState(0);
 
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const [post, getPost] = useState([]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [user, setData] = useState([]);
+  const [posts, setPosts] = useState([]);
 
- 
-  const fetchPost = () => {
-    fetch('/industry-master-api/v1/airline/data/', {
-      method: 'GET',
-      mode: 'cors',
-      headers: {
-        'Access-Control-Allow-Origin': 'http://65.1.154.157:8080/',
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        console.log(res);
-        getPost(res);
-         console.log("hello");
-      });
+  const fetchGet = () => {
+    axios.get('https://test.iconcile.com/industry-master-api/v1/airline/data').then((response) => {
+      setData(response.data);
+    });
   };
   useEffect(() => {
-    fetchPost();
+    fetchGet();
   }, []);
 
+  const deleteData = (id) => {
+    const url = 'https://test.iconcile.com/industry-master-api/v1/airline/delete';
+    const payload = [{ recordNumber: id }];
 
-  
+    axios
+      .delete(url, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: payload,
+      })
+      .then((response) => {
+        console.warn(response.data);
+        // Handle successful response here
+      })
+      .catch((error) => {
+        console.error(error);
+        // Handle error here
+      });
+    alert('Are You Sure You Want Delete Record !');
+
+    fetchGet();
+  };
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
   const handleChangePage = (_, newPage) => {
     setPage(newPage);
   };
-   const handleChangeRowsPerPage = (event) => {
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const toggle = () => {
+    setOpen(!open);
+  };
+  const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
   const navigate = useNavigate();
-  
   return (
     <Box width="100%" overflow="auto">
       <StyledTable>
@@ -81,18 +121,62 @@ const AirlineTable = () => {
           <Grid style={{ display: 'flex' }}>
             <Grid>
               <TextField
-                style={{ width: '600px' }}
-                id="standard-bare"
-                variant="outlined"
-                defaultValue="Search..."
                 InputProps={{
                   endAdornment: (
-                    <IconButton>
+                    <IconButton style={{ 'margin-right': '700px' }}>
                       <SearchOutlined />
                     </IconButton>
                   ),
                 }}
-              />
+                onClick={handleOpen}
+                style={{ width: '600px' }}
+                id="standard-bare"
+                variant="outlined"
+                placeholder="Search..."
+              >
+                {' '}
+              </TextField>
+              <Modal
+                open={open}
+                onClose={handleClose}
+                closeAfterTransition
+                slots={{ backdrop: Backdrop }}
+                slotProps={{
+                  backdrop: {
+                    timeout: 500,
+                  },
+                }}
+              >
+                <Fade
+                  in={open}
+                  style={{
+                    position: 'absolute',
+                  }}
+                >
+                  <Box
+                    style={{
+                      position: 'absolute',
+                      // top: 'auto',
+                      //left: '40%',
+
+                      // transform: 'translate(-50%, -50%)',
+                      width: 800,
+                      bgcolor: 'background.paper',
+                      border: '0px solid #000',
+                      // boxShadow: 24,
+                      p: 4,
+                    }}
+                  >
+                    <Typography>
+                      <Container>
+                        <SimpleCard>
+                          <SearchAirline />
+                        </SimpleCard>
+                      </Container>
+                    </Typography>
+                  </Box>
+                </Fade>
+              </Modal>
             </Grid>
             <Grid
               style={{
@@ -112,7 +196,7 @@ const AirlineTable = () => {
               <IconButton>
                 <FilterListRounded
                   onClick={() => {
-                    navigate('/Edit/Appform');
+                    <SearchAirline></SearchAirline>;
                   }}
                 />
               </IconButton>
@@ -123,7 +207,7 @@ const AirlineTable = () => {
             </Grid>
           </Grid>
           <TableRow>
-            <TableCell align="center"></TableCell>
+            <TableCell align="center"> action</TableCell>
             <TableCell align="center">Airline Num Code</TableCell>
             <TableCell align="center">Airline IATA Code</TableCell>
             <TableCell align="center">Airline ICAO Code</TableCell>
@@ -132,11 +216,14 @@ const AirlineTable = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {post.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item, index) => (
+          {user.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item, index) => (
             <TableRow key={index}>
-              <TableCell align="left">
+              <TableCell align="left" style={{ display: 'flex' }}>
                 <IconButton>
                   <Checkbox />
+                </IconButton>
+                <IconButton onClick={() => deleteData(item.recordNumber)}>
+                  <DeleteRounded />
                 </IconButton>
                 <IconButton>
                   <Icon
@@ -153,7 +240,7 @@ const AirlineTable = () => {
               <TableCell align="center">{item.arln_num_code}</TableCell>
               <TableCell align="center">{item.arln_icao_code}</TableCell>
               <TableCell align="center">{item.alliance_code}</TableCell>
-              <TableCell align="center">${item.arln_name}</TableCell>
+              <TableCell align="center">{item.arln_name}</TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -164,9 +251,9 @@ const AirlineTable = () => {
         page={page}
         component="div"
         rowsPerPage={rowsPerPage}
-        count={post.length}
+        count={user.length}
         onPageChange={handleChangePage}
-        rowsPerPageOptions={[5, 10, 25]}
+        rowsPerPageOptions={[10, 15, 20]}
         onRowsPerPageChange={handleChangeRowsPerPage}
         nextIconButtonProps={{ 'aria-label': 'Next Page' }}
         backIconButtonProps={{ 'aria-label': 'Previous Page' }}

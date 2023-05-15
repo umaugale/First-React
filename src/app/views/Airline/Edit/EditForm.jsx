@@ -14,11 +14,11 @@ const Container = styled("div")(({ theme }) => ({
   },
 }));
 
-const AddForm = () => {
+const EditForm = () => {
   return (
     <Container>
       <Box className="breadcrumb">
-        <Breadcrumb routeSegments={[{ name: "Industry Master", path: "/pages" }, { name: "Form" }]} />
+        <Breadcrumb routeSegments={[{ name: "Industry Master", path: "/pages" }, { name: "Edit Airline" }]} />
       </Box>
 
       <Stack spacing={3}>
@@ -31,4 +31,4 @@ const AddForm = () => {
   );
 };
 
-export default AddForm;
+export default EditForm;
